@@ -1,26 +1,239 @@
-@import "tailwindcss";
-
+/* --- GLOBAL VARIABLES & RESET --- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+    --primary: #2c3e50;
+    --accent: #34495e;
+    --text-main: #222;
+    --text-muted: #666;
+    --sidebar-bg: #0061C3;
+    --sidebar-color: #ffffff;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+    box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+    font-size: 16px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text-main);
+    background-color: #555;
+    display: flex;
+    justify-content: center;
+}
+
+/* --- PAGE CONTAINER --- */
+.page {
+    width: 210mm;
+    /* Screen: Use gradient for sidebar color */
+    background: linear-gradient(to right,
+            var(--sidebar-bg) 0%,
+            var(--sidebar-bg) 70mm,
+            white 70mm,
+            white 100%);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    margin: 20px 0;
+    display: block;
+}
+
+.layout-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* --- SPACERS & LAYOUT --- */
+/* The top spacer height (25mm) */
+.print-header {
+    height: 25mm;
+}
+
+/* On screen, the image touches top via negative margin logic too */
+.profile-container {
+    width: 100%;
+    margin-bottom: 2rem;
+    /* Pull the image up to cover the header spacer on Page 1 */
+    margin-top: -25mm;
+    overflow: hidden;
+}
+
+.col-sidebar {
+    width: 70mm;
+    vertical-align: top;
+    padding: 0;
+}
+
+.col-main {
+    width: 140mm;
+    vertical-align: top;
+}
+
+/* --- CONTENT STYLING --- */
+.sidebar {
+    color: var(--sidebar-color);
+    padding: 0 2rem 2rem 2rem;
+    text-align: left;
+}
+
+.sidebar-color {
+    color: var(--sidebar-color);
+}
+
+.main-content {
+    padding: 0 2.5rem;
+}
+
+.profile-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    /* focal point: center X, 30% from top */
+}
+
+.footer-spacer {
+    height: 25mm;
+    /* Screen spacer (optional, can be 0 if preferred) */
+}
+
+/* Typography */
+h1 {
+    font-size: 2.5rem;
+    line-height: 1.1;
+    margin: 0 0 0.5rem 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+h2 {
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 0.25rem;
+}
+
+.sidebar h2 {
+    border-color: var(--sidebar-color);
+}
+
+.sidebar a {
+    color: var(--sidebar-color);
+}
+
+h3 {
+    font-size: 1.1rem;
+    margin: 0;
+    color: var(--primary);
+}
+
+p,
+li {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+}
+
+ul {
+    padding-left: 1.2rem;
+    margin-top: 0;
+}
+
+.job-card {
+    margin-bottom: 2rem;
+    break-inside: avoid;
+}
+
+.job-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.5rem;
+}
+
+.job-title {
+    font-weight: bold;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.date {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+/* --- PRINT SPECIFIC OVERRIDES --- */
+@media print {
+    html {
+        font-size: 11pt;
+    }
+
+    @page {
+        size: A4;
+        margin: 0;
+        /* Keep "Margins: None" */
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: transparent !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* 1. FIXED INFINITE SIDEBAR */
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 70mm;
+        background-color: var(--sidebar-bg);
+        z-index: -1;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* 2. REPEATABLE SPACERS */
+    .print-header {
+        height: 25mm;
+        /* Forces white space on Page 2+ */
+    }
+
+    .footer-spacer {
+        height: 25mm;
+    }
+
+    /* 3. PAGE 1 IMAGE FIX */
+    .profile-container {
+        /* This pulls the image UP into the header space on the first page only. */
+        /* Since the header repeats, this negative margin only affects the image 
+       where it physically sits in the HTML (Page 1). */
+        margin-top: -25mm;
+        overflow: hidden;
+    }
+
+    /* Print focal point — keep the important area visible when cropped */
+    .profile-img {
+        object-position: 50% 30%;
+    }
+
+    .page {
+        margin: 0;
+        width: 100%;
+        box-shadow: none;
+        background: transparent !important;
+    }
+
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
 }
