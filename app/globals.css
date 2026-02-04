@@ -236,4 +236,9 @@ ul {
         text-decoration: none;
         color: inherit;
     }
+
+    /* Hide navigation during print */
+    .no-print {
+        display: none !important;
+    }
 }
